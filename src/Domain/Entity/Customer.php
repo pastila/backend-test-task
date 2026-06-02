@@ -2,20 +2,26 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Domain;
+namespace Raketa\BackendTestTask\Domain\Entity;
+
+use Raketa\BackendTestTask\Domain\ValueObject\CustomerId;
+use Raketa\BackendTestTask\Domain\ValueObject\Email;
 
 final readonly class Customer
 {
     public function __construct(
-        private int $id,
+        private CustomerId $id,
         private string $firstName,
         private string $lastName,
         private string $middleName,
-        private string $email,
+        private Email $email,
     ) {
     }
 
-    public function getId(): int
+    /**
+     * @return CustomerId
+     */
+    public function getId(): CustomerId
     {
         return $this->id;
     }
@@ -35,8 +41,13 @@ final readonly class Customer
         return $this->middleName;
     }
 
-    public function getEmail(): string
+    public function getEmail(): Email
     {
         return $this->email;
+    }
+
+    public function getFullName(): string
+    {
+        return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
     }
 }

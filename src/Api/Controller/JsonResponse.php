@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Controller;
+namespace Raketa\BackendTestTask\Api\Controller;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -13,6 +13,11 @@ use Psr\Http\Message\StreamInterface;
  */
 final class JsonResponse implements ResponseInterface
 {
+    public function __construct()
+    {
+        $this->withHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+
     public function getProtocolVersion(): string
     {
         // TODO: Implement getProtocolVersion() method.
@@ -82,4 +87,12 @@ final class JsonResponse implements ResponseInterface
     {
         // TODO: Implement getReasonPhrase() method.
     }
+
+    public function setJsonArray(array $data)
+    {
+        $json = json_encode($data);
+        $this->getBody()->write($json);
+        //TODO: Implement setBody() method
+    }
+
 }

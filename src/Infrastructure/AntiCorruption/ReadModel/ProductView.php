@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Repository\Entity;
+namespace Raketa\BackendTestTask\Infrastructure\AntiCorruption\ReadModel;
 
-readonly class Product
+readonly class ProductView
 {
     public function __construct(
         private int $id,
@@ -56,5 +56,19 @@ readonly class Product
     public function getPrice(): float
     {
         return $this->price;
+    }
+
+    public static function fromArray(array $data): ProductView
+    {
+        return new self(
+            (int)$data['id'],
+            $data['uuid'],
+            (bool)$data['is_active'],
+            $data['category'],
+            $data['name'],
+            $data['description'],
+            $data['thumbnail'],
+            (float)$data['price'],
+        );
     }
 }
