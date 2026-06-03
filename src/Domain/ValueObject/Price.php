@@ -18,7 +18,8 @@ final class Price
 
     public function add(float $amount): Price
     {
-        return self::fromAmount($amount + $this->amount);
+        $newAmount = (int)($amount * 100) + (int)($this->amount * 100);
+        return self::fromAmount((float)($newAmount / 100));
     }
 
     public function getAmount(): float

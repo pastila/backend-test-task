@@ -2,13 +2,12 @@
 
 declare(strict_types = 1);
 
-namespace Raketa\BackendTestTask\Infrastructure\AntiCorruption;
+namespace Raketa\BackendTestTask\Infrastructure\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use Raketa\BackendTestTask\Domain\Repository\ProductRepository;
 use Raketa\BackendTestTask\Domain\ValueObject\ProductId;
 use Raketa\BackendTestTask\Infrastructure\AntiCorruption\ReadModel\ProductView;
-use Raketa\BackendTestTask\Repository\Exception;
 
 class DoctrineProductRepository implements ProductRepository
 {
@@ -19,7 +18,7 @@ class DoctrineProductRepository implements ProductRepository
         $this->connection = $connection;
     }
 
-    public function getById(ProductId $productId): ProductView
+    public function getById(ProductId $productId): ?ProductView
     {
         $stmt = $this->connection->prepare("SELECT id, uuid, is_active, category, name, description, thumbnail, price FROM products WHERE uuid = :uuid");
         $stmt->bindValue(':uuid', $productId->uuid);
@@ -27,7 +26,7 @@ class DoctrineProductRepository implements ProductRepository
         $row = $resultSet->fetchAssociative();
 
         if (false === $row) {
-            throw new \Exception(sprintf('Product %s not found', $productId->uuid));
+            return null;
         }
 
         return ProductView::fromArray($row);

@@ -2,22 +2,24 @@
 
 namespace Raketa\BackendTestTask\Application;
 
-use Raketa\BackendTestTask\Application\Exception\CartPersistenceException;
-use Raketa\BackendTestTask\Application\Exception\InitializeCartException;
 use Raketa\BackendTestTask\Domain\Entity\Cart;
+use Raketa\BackendTestTask\Domain\Repository\CartRepository;
 
-interface CartManager
+class CartManager
 {
-    /**
-     * @throws InitializeCartException
-     * @return Cart
-     */
-    public function getCart(): Cart;
+    public function __construct(
+        private CartRepository $cartRepository,
+    )
+    {
+    }
 
-    /**
-     * @throws CartPersistenceException
-     * @param Cart $cart
-     * @return void
-     */
-    public function save(Cart $cart): void;
+    public function getCart(): Cart
+    {
+        return $this->cartRepository->getCart();
+    }
+
+    public function save(Cart $cart): void
+    {
+        $this->cartRepository->save($cart);
+    }
 }

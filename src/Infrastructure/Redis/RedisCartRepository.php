@@ -3,10 +3,11 @@
 namespace Raketa\BackendTestTask\Infrastructure\Redis;
 
 use Psr\Log\LoggerInterface;
-use Raketa\BackendTestTask\Application\CartManager;
 use Raketa\BackendTestTask\Application\Exception\CartPersistenceException;
+use Raketa\BackendTestTask\Application\Exception\InitializeCartException;
 use Raketa\BackendTestTask\Domain\Entity\Cart;
 use Raketa\BackendTestTask\Domain\Entity\Customer;
+use Raketa\BackendTestTask\Domain\Repository\CartRepository;
 use Raketa\BackendTestTask\Domain\ValueObject\CartId;
 use Raketa\BackendTestTask\Domain\ValueObject\CartItemId;
 use Raketa\BackendTestTask\Domain\ValueObject\CustomerId;
@@ -17,13 +18,13 @@ use Raketa\BackendTestTask\Infrastructure\Exception\RedisConnectorException;
 use RedisException;
 use ValueError;
 
-class RedisCartManager implements CartManager
+class RedisCartRepository implements CartRepository
 {
     private const TTL = 86400;
     private const VERSION = 1;
 
     public function __construct(
-        private RedisRegistry   $redisRegistry,
+        private RedisRegistry $redisRegistry,
         private LoggerInterface $logger
     )
     {
@@ -99,25 +100,28 @@ class RedisCartManager implements CartManager
             'items' => $items,
         ];
 
-        $con = $this->redisRegistry->getConnection();
-
         try {
+            $con = $this->redisRegistry->getConnection();
             $con->setex($this->getRedisKey(), json_encode($data), self::TTL);
-        } catch (RedisException $e) {
+        } catch (RedisException|RedisConnectorException $e) {
             $this->logger->error(sprintf('Failed to save cart: %s', $e->getMessage()));
             throw new CartPersistenceException(sprintf('Failed to save cart: %s', $e->getMessage()), previous: $e);
         }
-
     }
 
     private function getCartKey(): string
     {
-        return session_id();
+        $key = session_id();
+
+        if ($key === '' || $key === false) {
+            throw new InitializeCartException('Failed to initialize Cart');
+        }
+
+        return $key;
     }
 
     private function getRedisKey(): string
     {
         return sprintf('app|cart|%s', $this->getCartKey());
     }
-
 }

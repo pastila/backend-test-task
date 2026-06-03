@@ -35,7 +35,7 @@ readonly class CartProvider
             $product = $this->productRepository->getById($cartItem->getProductId());
 
             if (null === $product) {
-                $this->logger->warning(sprintf("Product %s not found in Cart %s", $cartItem->getProductId()->uuid, $cart->getUuid()->uuid));
+                $this->logger->warning(sprintf("Product %s not found in Cart %s", $cartItem->getProductId()->uuid, $cart->getUuid()->id));
                 continue;
             }
 
